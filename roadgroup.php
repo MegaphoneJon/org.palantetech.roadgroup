@@ -1,6 +1,34 @@
 <?php
 
 require_once 'roadgroup.civix.php';
+function roadgroup_civicrm_check(&$messages) {
+  roadgroup_addressParsingIsEnabled($messages);
+}
+
+function roadgroup_addressParsingIsEnabled(&$messages) {
+  // Get the value of "Street Address Parsing" from the option values table.
+  $id = civicrm_api3('OptionValue', 'getsingle', array(
+    'return' => array("value"),
+    'option_group_id' => "address_options",
+    'name' => "street_address_parsing",
+  ));
+  // Get the address_options.
+  $result = civicrm_api3('Setting', 'get', array(
+    'sequential' => 1,
+    'return' => array("address_options"),
+  ));
+  // Is "Street Address Parsing" set in address_options?
+  $parsingEnabled = in_array($id['value'], $result['values'][0]['address_options']);
+  if (!$parsingEnabled) {
+    $messages[] = new CRM_Utils_Check_Message(
+      'roadgroup_parsingEnabled',
+      ts('You have enabled the Road Group extension, but you have not enabled "Street Address Parsing" field in Administer menu » Localization » Address Settings.'),
+      ts('Street Address Parsing is not enabled'),
+      \Psr\Log\LogLevel::WARNING,
+      'fa-globe'
+    );
+  }
+}
 
 /**
  * Implements hook_civicrm_config().
@@ -14,7 +42,6 @@ function roadgroup_civicrm_config(&$config) {
 /**
  * Implements hook_civicrm_xmlMenu().
  *
- * @param array $files
  *
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_xmlMenu
  */
@@ -28,6 +55,28 @@ function roadgroup_civicrm_xmlMenu(&$files) {
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_install
  */
 function roadgroup_civicrm_install() {
+  // Let's enable street address parsing if it's not.
+
+  // Get the value of "Street Address Parsing" from the option values table.
+  $id = civicrm_api3('OptionValue', 'getsingle', array(
+    'return' => array("value"),
+    'option_group_id' => "address_options",
+    'name' => "street_address_parsing",
+  ));
+  // Get the address_options.
+  $result = civicrm_api3('Setting', 'get', array(
+    'sequential' => 1,
+    'return' => array("address_options"),
+  ));
+  // Is "Street Address Parsing" set in address_options?
+  $parsingEnabled = in_array($id['value'], $result['values'][0]['address_options']);
+  if (!$parsingEnabled) {
+    $result['values'][0]['address_options'][] = $id['value'];
+    $result = civicrm_api3('Setting', 'create', array(
+      'sequential' => 1,
+      'address_options' => $result['values'][0]['address_options'],
+    ));
+  }
   _roadgroup_civix_civicrm_install();
 }
 
