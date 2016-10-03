@@ -4,34 +4,47 @@
   <base>CRM/Roadgroup</base>
   <class>RoadGroup</class>
   <name>civicrm_roadgroup</name>
-  <comment>FIXME</comment>
-  <add>4.4</add>
-  <log>true</log>
+  <comment>Stores the Road Group data.</comment>
+  <add>4.7</add>
+  <log>false</log>
 
   <field>
     <name>id</name>
     <type>int unsigned</type>
     <required>true</required>
     <comment>Unique RoadGroup ID</comment>
-    <add>4.4</add>
+    <add>4.7</add>
   </field>
   <primaryKey>
     <name>id</name>
     <autoincrement>true</autoincrement>
   </primaryKey>
-
   <field>
-    <name>contact_id</name>
-    <type>int unsigned</type>
-    <comment>FK to Contact</comment>
-    <add>4.4</add>
+    <name>address_1</name>
+    <type>varchar</type>
+    <title>Property Address 1</title>
+    <length>64</length>
+    <export>true</export>
+    <comment>Property Address 1</comment>
+    <add>4.7</add>
+    <html>
+      <type>Text</type>
+    </html>
   </field>
-  <foreignKey>
-    <name>contact_id</name>
-    <table>civicrm_contact</table>
-    <key>id</key>
-    <add>4.4</add>
-    <onDelete>CASCADE</onDelete>
-  </foreignKey>
+  <field>
+    <name>postal_code</name>
+    <title>Postal Code</title>
+    <type>varchar</type>
+    <length>64</length>
+    <import>true</import>
+    <headerPattern>/postal|zip/i</headerPattern>
+    <dataPattern>/\d?\d{4}(-\d{4})?/</dataPattern>
+    <comment>Store both US (zip5) AND international postal codes. App is responsible for country/region appropriate validation.</comment>
+    <add>4.7</add>
+    <html>
+      <type>Text</type>
+      <size>6</size>
+    </html>
+  </field>
 
 </table>
